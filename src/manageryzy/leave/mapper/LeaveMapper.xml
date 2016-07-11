@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="manageryzy.leave.mapper.LeaveMapper">
+    <select id="selectByUser" resultType="manageryzy.leave.model.Leave">
+        SELECT *
+        FROM `leave`
+        WHERE uid = #{uid}
+    </select>
+
+</mapper>
