@@ -6,7 +6,7 @@
     <select id="selectUser" resultType="manageryzy.leave.model.User">
         SELECT *
         FROM `user`
-        WHERE uid = #{id}
+        WHERE uid = #{uid}
     </select>
 </mapper>
 
