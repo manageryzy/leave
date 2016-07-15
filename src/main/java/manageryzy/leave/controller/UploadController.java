@@ -2,6 +2,7 @@ package manageryzy.leave.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import manageryzy.leave.err.ErrNo;
 import org.apache.ibatis.session.SqlSession;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,13 +31,45 @@ public class UploadController extends LeaveController {
 
     private JSON uploadInvite() {
         JSONObject json = new JSONObject();
-        //TODO:
+
+        if (leave == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        if (uid != leave.getUid()) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        if (leave.getStatus() != STATUS_LEAVE_EDIT) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+
+
         return json;
     }
 
     private JSON uploadBill() {
         JSONObject json = new JSONObject();
-        //TODO:
+
+        if (leave == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        if (uid != leave.getUid()) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        if (leave.getStatus() != STATUS_LEAVE_EDIT) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
         return json;
     }
 }

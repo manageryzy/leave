@@ -10,6 +10,7 @@ public class ErrNo {
     public static final int ERR_PARMETER = -2;
     public static final int ERR_DB = -3;
     public static final int ERR_NO_PREVILIGE = -4;
+    public static final int ERR_NOT_FOUND = -5;
     public static final int ERR_LOGIN_FAIL = -10;
     public static final int ERR_LOGOUT_FAIL = -11;
     public static final int ERR_UPLOAD_NOT_ALLOW = -20;

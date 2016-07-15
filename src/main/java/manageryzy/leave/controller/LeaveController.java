@@ -9,6 +9,7 @@ import org.apache.ibatis.session.SqlSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * core leave controller
@@ -1091,7 +1092,21 @@ public class LeaveController extends Controller {
      */
     private JSON getLeaveByID() {
         JSONObject json = new JSONObject();
-        //TODO:
+
+        if (leave == null) {
+            json.put("code",ErrNo.ERR_NOT_FOUND);
+            return json;
+        }
+
+        if (leave.getUid() != uid) {
+            if(role >= Role.ROLE_USER_1){
+                json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            }
+        }
+
+        json.put("code", ErrNo.ERR_NONE);
+        json.put("data", leave);
+
         return json;
     }
 
@@ -1102,7 +1117,15 @@ public class LeaveController extends Controller {
      */
     private JSON getLeaveByUser() {
         JSONObject json = new JSONObject();
-        //TODO:
+
+        List<Object> list = sqlSession.selectList("manageryzy.leave.mapper.LeaveMapper.selectByUser", uid);
+        if (list != null) {
+            json.put("code", ErrNo.ERR_NONE);
+            json.put("data", list);
+        }else {
+            json.put("code", ErrNo.ERR_DB);
+        }
+
         return json;
     }
 
@@ -1113,7 +1136,8 @@ public class LeaveController extends Controller {
      */
     private JSON getLeaveByStatus() {
         JSONObject json = new JSONObject();
-        //TODO:
+        // NOT use
+        json.put("code", ErrNo.ERR_NONE);
         return json;
     }
 }
