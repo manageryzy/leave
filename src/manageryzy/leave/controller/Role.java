@@ -10,12 +10,20 @@ public class Role {
     public final static int ROLE_NONE = 0;
     public final static int ROLE_BOSS = 1;//总经理
     public final static int ROLE_ACCOUNTANT = 2;//会计（财务）
-    public final static int ROLE_COST = 3;//成本控制人员
-    public final static int ROLE_DEP = 4;//部门经理
-    public final static int ROLE_USER_1 = 5;//员工类型1
-    public final static int ROLE_USER_2 = 6;//员工类型2
+    public final static int ROLE_COST = 4;//成本控制人员
+    public final static int ROLE_DEP = 8;//部门经理
+    public final static int ROLE_USER_1 = 16;//员工类型1
+    public final static int ROLE_USER_2 = 32;//员工类型2
     private static Role role = null;
     private ArrayList<Cost> costList = null;
+
+    public static Role getRole() {
+        if (role == null) {
+            role = new Role();
+        }
+
+        return role;
+    }
 
     public void Role() {
         costList = new ArrayList<>();
@@ -30,14 +38,6 @@ public class Role {
 
     public Cost getCost(int role) {
         return costList.get(role);
-    }
-
-    public Role getRole() {
-        if (role == null) {
-            role = new Role();
-        }
-
-        return role;
     }
 
     //需要审核的限额

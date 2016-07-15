@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 
 /**
  * core leave controller
@@ -44,7 +45,7 @@ public class LeaveController extends Controller {
         }
 
         if (session.getAttribute("uid") != null) {
-            uid = (int) session.getAttribute("uid");
+            uid = Integer.parseInt((String) session.getAttribute("uid"));
         }
 
         if (request.getParameter("id") != null) {
@@ -129,7 +130,23 @@ public class LeaveController extends Controller {
      */
     private JSON leaveNew() {
         JSONObject json = new JSONObject();
-        //TODO:
+
+        if (role < Role.ROLE_USER_1) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        leave = new Leave();
+        leave.setUid(uid);
+        leave.setStatus(STATUS_LEAVE_EDIT);
+        leave.setRole(role);
+
+        if (sqlSession.insert("manageryzy.leave.mapper.LeaveMapper.insertLeave", leave) != 1) {
+            json.put("code", ErrNo.ERR_DB);
+            return json;
+        }
+
+        json.put("code", ErrNo.ERR_NONE);
         return json;
     }
 
@@ -154,7 +171,36 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+
+        try {
+            leave.setLeave_aim(request.getParameter("leave-aim"));
+            leave.setLeave_target(request.getParameter("leave-target"));
+            leave.setLeave_leave_date(sdf.parse(request.getParameter("leave-leave-date")));
+            leave.setLeave_back_date(sdf.parse(request.getParameter("leave-back-date")));
+            leave.setLeave_type(request.getParameter("leave-type"));
+            leave.setLeave_plan(request.getParameter("leave-plan"));
+            leave.setLeave_invite(request.getParameter("leave-invite"));
+        } catch (Exception e) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        if (!leave.checkLeave()) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_LEAVE_DEP);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -179,7 +225,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_LEAVE_COST);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -205,7 +259,21 @@ public class LeaveController extends Controller {
             return json;
         }
 
-        //TODO:
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_LEAVE_EDIT);
+        leave.setLeave_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -230,7 +298,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_STOP);
+        leave.setLeave_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -255,7 +338,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_PRE_EDIT);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -280,7 +371,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_LEAVE_EDIT);
+        leave.setLeave_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -305,7 +411,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_STOP);
+        leave.setLeave_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -330,7 +451,24 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        int pre_money;
+
+        try {
+            pre_money = Integer.parseInt(request.getParameter("pre-money"));
+        } catch (Exception e) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setPre_money(pre_money);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -355,7 +493,19 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        if (leave.getPre_money() > Role.getRole().getCost(leave.getRole()).pre) {
+            leave.setStatus(STATUS_PRE_BOSS);
+        } else {
+            leave.setStatus(STATUS_PRE_PAY);
+        }
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -381,7 +531,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_PRE_EDIT);
+        leave.setPre_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -406,7 +571,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_PRE_PAY);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -431,7 +604,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_STOP);
+        leave.setPre_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -456,7 +644,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_SUM_EDIT);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -481,7 +677,32 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+
+        try {
+            leave.setSum_sum(request.getParameter("sum-sum"));
+            leave.setSum_acc_money(Integer.parseInt(request.getParameter("sum-acc-money")));
+            leave.setSum_acc_leave_date(sdf.parse(request.getParameter("sum-acc-leave-date")));
+            leave.setSum_acc_back_date(sdf.parse(request.getParameter("sum-acc-back-date")));
+        } catch (Exception e) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        if (!leave.checkSum()) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_SUM_DEP);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -506,7 +727,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_AFTER_EDIT);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -531,7 +760,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_SUM_EDIT);
+        leave.setSum_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -556,7 +800,24 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        int after_money;
+
+        try {
+            after_money = Integer.parseInt(request.getParameter("after-money"));
+        } catch (Exception e) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setAfter_money(after_money);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -581,7 +842,19 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        if (leave.getAfter_money() > Role.getRole().getCost(leave.getRole()).after) {
+            leave.setStatus(STATUS_AFTER_BOSS);
+        } else {
+            leave.setStatus(STATUS_AFTER_PAY);
+        }
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -606,7 +879,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_AFTER_EDIT);
+        leave.setAfter_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -631,7 +919,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_STOP);
+        leave.setAfter_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -656,7 +959,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_AFTER_PAY);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -681,7 +992,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_AFTER_EDIT);
+        leave.setAfter_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -706,7 +1032,22 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        String comment = request.getParameter("comment");
+        if (comment == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        leave.setStatus(STATUS_STOP);
+        leave.setAfter_comment(comment);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 
@@ -731,7 +1072,15 @@ public class LeaveController extends Controller {
             json.put("code", ErrNo.ERR_PARMETER);
             return json;
         }
-        //TODO:
+
+        leave.setStatus(STATUS_FIN);
+
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+            json.put("code", ErrNo.ERR_DB);
+        } else {
+            json.put("code", ErrNo.ERR_NONE);
+        }
+
         return json;
     }
 

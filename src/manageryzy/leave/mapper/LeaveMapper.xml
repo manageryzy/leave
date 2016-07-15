@@ -21,4 +21,77 @@
         WHERE `status` = #{status}
     </select>
 
+    <insert id="insertLeave">
+        INSERT INTO `leave` (
+            `status`,
+            `uid`,
+            `role`,
+            `leave_aim`,
+            `leave_target`,
+            `leave_leave_date`,
+            `leave_back_date`,
+            `leave_type`,
+            `leave_plan`,
+            `leave_invite`,
+            `leave_comment`,
+            `pre_money`,
+            `pre_comment`,
+            `sum_acc_leave_date`,
+            `sum_acc_back_date`,
+            `sum_acc_money`,
+            `sum_sum`,
+            `sum_comment`,
+            `after_money`,
+            `after_comment`
+        )
+        VALUES (
+            #{status},
+            #{uid},
+            #{role},
+            #{leave_aim},
+            #{leave_target},
+            #{leave_leave_date},
+            #{leave_back_date},
+            #{leave_type},
+            #{leave_plan},
+            #{leave_invite},
+            #{leave_comment},
+            #{pre_money},
+            #{pre_comment},
+            #{sum_acc_leave_date},
+            #{sum_acc_back_date},
+            #{sum_acc_money},
+            #{sum_sum},
+            #{sum_comment},
+            #{after_money},
+            #{after_comment}
+        )
+    </insert>
+
+    <update id="updateLeave">
+        UPDATE `leave`
+        SET
+            `status`             = #{status},
+            `uid`                = #{uid},
+            `role`               = #{role},
+            `leave_aim`          = #{leave_aim},
+            `leave_target`       = #{leave_target},
+            `leave_leave_date`   = #{leave_leave_date},
+            `leave_back_date`    = #{leave_back_date},
+            `leave_type`         = #{leave_type},
+            `leave_plan`         = #{leave_plan},
+            `leave_invite`       = #{leave_invite},
+            `leave_comment`      = #{leave_comment},
+            `pre_money`          = #{pre_money},
+            `pre_comment`        = #{pre_comment},
+            `sum_acc_leave_date` = #{sum_acc_leave_date},
+            `sum_acc_back_date`  = #{sum_acc_back_date},
+            `sum_acc_money`      = #{sum_acc_money},
+            `sum_sum`            = #{sum_sum},
+            `sum_comment`        = #{sum_comment},
+            `after_money`        = #{after_money},
+            `after_comment`      = #{after_comment}
+        WHERE `id` = #{id};
+    </update>
+
 </mapper>

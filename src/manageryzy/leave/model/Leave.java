@@ -9,6 +9,7 @@ public class Leave {
     private int id;
     private int status;
     private int uid;
+    private int role;
     private String leave_aim;
     private String leave_target;
     private Date leave_leave_date;
@@ -49,6 +50,14 @@ public class Leave {
 
     public void setUid(int uid) {
         this.uid = uid;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 
     public String getLeave_aim() {
@@ -186,4 +195,28 @@ public class Leave {
     public void setAfter_comment(String after_comment) {
         this.after_comment = after_comment;
     }
+
+    public boolean checkLeave() {
+        if (id == 0 || uid == 0 ||
+                leave_aim == null || leave_back_date == null || leave_leave_date == null ||
+                leave_plan == null || leave_target == null || leave_type == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkSum() {
+        if (id == 0 || uid == 0 ||
+                sum_acc_back_date == null ||
+                sum_acc_leave_date == null ||
+                sum_acc_money == 0
+                ) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 }

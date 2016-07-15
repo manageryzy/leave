@@ -68,6 +68,8 @@ public class APIServlet extends javax.servlet.http.HttpServlet {
                 return;
         }
 
+        sqlSession.commit();
+        sqlSession.close();
         assert res != null;
         response.getWriter().println(res.toJSONString());
     }

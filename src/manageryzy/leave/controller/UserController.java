@@ -55,7 +55,7 @@ public class UserController extends Controller {
 
         User user;
         try {
-            user = sqlSession.selectOne("manageryzy.leave.mapper.UserMapper.selectUser");
+            user = sqlSession.selectOne("manageryzy.leave.mapper.UserMapper.selectUser", uid);
         } catch (Exception e) {
             json.put("code", ErrNo.ERR_DB);
             return json;
@@ -67,13 +67,13 @@ public class UserController extends Controller {
         }
 
         try {
-            String pass = user.getPwd() + pwd + DatatypeConverter.printHexBinary(MessageDigest.getInstance("MD5").digest(user.getPwd().getBytes("UTF-8")));
+            String pass = user.getSalt() + pwd + DatatypeConverter.printHexBinary(MessageDigest.getInstance("MD5").digest(user.getSalt().getBytes("UTF-8")));
             if (!user.getPwd().equals(DatatypeConverter.printHexBinary(MessageDigest.getInstance("MD5").digest(pass.getBytes("UTF-8"))))) {
                 //wrong pwd
                 json.put("code", ErrNo.ERR_LOGIN_FAIL);
                 return json;
             } else {
-                if (role != user.getPrivilege()) {
+                if ((role & user.getPrivilege()) == 0) {
                     json.put("code", ErrNo.ERR_NO_PREVILIGE);
                     return json;
                 }
