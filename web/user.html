@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+    <link rel="stylesheet" href="lib/MaterialIcon/icon.css">
+    <link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="web.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+<div class="valign-wrapper screen-container">
+    <div class="valign container row">
+        <div class="col m10 l10 offset-m1 offset-l1">
+            <div class="card-panel hoverable ">
+                <p id="ann">公告</p>
+                <a onclick="newLeave()" class="waves-effect waves-light btn">新出差</a>
+                <ul class="collection with-header" id="leave">
+                    <li class="collection-header"><h4>我的出差</h4></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/Materialize/dist/js/materialize.min.js"></script>
+<script>
+    function view(id) {
+        window.open("detale.html#"+id);
+    }
+
+    function upload_invite(id) {
+        window.open("upload-invite.html#"+id);
+    }
+
+    function upload_bill(id) {
+        window.open("upload-bill.html#"+id);
+    }
+
+    function newLeave() {
+        jQuery.getJSON("api/leave/leave-new",function (res) {
+            if(res["code"]!=0) {
+                Materialize.toast('失败', 3000, 'rounded');
+            }else {
+                location.reload();
+            }
+        });
+    }
+
+    function edit_leave(id) {
+        var aim = prompt("出差目的:","");
+        var target = prompt("目的地:","");
+        var leave = prompt("出发日期（yyyy-mm-dd）:","");
+        var back = prompt("返回日期（yyyy-mm-dd）:","");
+        var type = prompt("类型:","");
+        var plan = prompt("计划:","");
+        var invite = prompt("邀请方：","无");
+
+        jQuery.getJSON("api/leave/leave-edit?id="+id+"&leave-aim="+aim+"&leave-target="+target+"&leave-leave-date="+leave+"&leave-back-date="+back+"&leave-type="+type+"&leave-plan="+plan+"&leave-invite="+invite,function (res) {
+            if(res["code"]!=0) {
+                Materialize.toast('失败', 3000, 'rounded');
+            }else {
+                location.reload();
+            }
+        });
+    }
+
+    function edit_pre(id) {
+        var pre = prompt("金额（元）:","0");
+        jQuery.getJSON("api/leave/pre-edit?id="+id+"&pre-money="+pre,function (res) {
+            if(res["code"]!=0) {
+                Materialize.toast('失败', 3000, 'rounded');
+            }else {
+                location.reload();
+            }
+        });
+    }
+
+    function edit_sum(id) {
+        var sum = prompt("总结","");
+        var money = prompt("实际花费","");
+        var leave = prompt("实际离开日期（yyyy-mm-dd）","");
+        var back = prompt("实际返回日期（yyyy-mm-dd）","");
+
+        jQuery.getJSON("api/leave/sum-edit?id="+id+"&sum-sum="+sum+"&sum-acc-money="+money+"&sum-acc-leave-date="+leave+"&sum-acc-back-date="+back,function (res) {
+            if(res["code"]!=0) {
+                Materialize.toast('失败', 3000, 'rounded');
+            }else {
+                location.reload();
+            }
+        });
+    }
+
+    function edit_after(id) {
+        var pre = prompt("金额（元）:","0");
+        jQuery.getJSON("api/leave/after-edit?id="+id+"&after-money="+pre,function (res) {
+            if(res["code"]!=0) {
+                Materialize.toast('失败', 3000, 'rounded');
+            }else {
+                location.reload();
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $.get("api/get-ann/",function (res) {
+            $("#ann").html("公告：" + res);
+        });
+        $.getJSON("api/leave/get-by-uid", function (res) {
+            if (res["code"] == 0) {
+                res["data"].forEach(function (l) {
+                    var str = "";
+                    if(l["status"]==1){
+                        str += '<a onclick="edit_leave(' + l["id"] + ')" class="waves-effect waves-light btn">编辑并提交出差</a>';
+                        str += '<a onclick="upload_invite(' + l["id"] + ')" class="waves-effect waves-light btn">上传邀请</a>';
+                    }
+                    if(l["status"]==5){
+                        str = '<a onclick="edit_pre(' + l["id"] + ')" class="waves-effect waves-light btn">编辑并提交预借款</a>';
+                    }
+                    if(l["status"]==9){
+                        str = '<a onclick="edit_sum(' + l["id"] + ')" class="waves-effect waves-light btn">编辑并提交总结</a>';
+                    }
+                    if(l["status"]==11){
+                        str = '<a onclick="edit_after(' + l["id"] + ')" class="waves-effect waves-light btn">编辑并提交报销</a>';
+                        str += '<a onclick="upload_bill(' + l["id"] + ')" class="waves-effect waves-light btn">上传票据</a>';
+                    }
+
+                    var st = "";
+                    switch (l["status"]) {
+                        case -1:
+                            st="被终止";
+                            break;
+                        case 0:
+                            st="异常状态";
+                            break;
+                        case 1:
+                            st="编辑出差申请";
+                            break;
+                        case 2:
+                            st="出差申请部门审核中";
+                            break;
+                        case 3:
+                            st="出差申请成本控制审核之中";
+                            break;
+                        case 5:
+                            st="编辑预借款";
+                            break;
+                        case 6:
+                            st="预借款部门审核中";
+                            break;
+                        case 7:
+                            st="预借款boss审核中";
+                            break;
+                        case 8:
+                            st="预借款等待付款";
+                            break;
+                        case 9:
+                            st="总结填写";
+                            break;
+                        case 10:
+                            st="总结部门评审中";
+                            break;
+                        case 11:
+                            st="报销填写中";
+                            break;
+                        case 12:
+                            st="报销部门审核中";
+                            break;
+                        case 13:
+                            st="报销boss审核中";
+                            break;
+                        case 14:
+                            st="等待报销";
+                            break;
+                        case 15:
+                            st="完成";
+                            break;
+
+                    }
+
+                    $("#leave").append('<li class="collection-item">\
+                            <i class="left">' + l["id"] + '</i>\
+                            <i class="left">' + st + '</i>\
+                            <a onclick="view(' + l["id"] + ')" class="waves-effect waves-light btn">详情</a>\
+                            '+str+'\
+                            </li>');
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

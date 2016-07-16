@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import manageryzy.leave.err.ErrNo;
 import manageryzy.leave.model.User;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.ibatis.session.SqlSession;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,8 +17,8 @@ import java.security.MessageDigest;
  * Created by manageryzy on 7/12/2016.
  */
 public class UserController extends Controller {
-    public UserController(HttpServletRequest request, HttpSession session, SqlSession sqlSession) {
-        super(request, session, sqlSession);
+    public UserController(HttpServletRequest request, HttpSession session, SqlSession sqlSession, ServletFileUpload upload) {
+        super(request, session, sqlSession,upload);
     }
 
     public JSON router(String route) {
@@ -112,7 +113,7 @@ public class UserController extends Controller {
         }
 
         if (session.getAttribute("uid") != null) {
-            uid = (int) session.getAttribute("uid");
+            uid = Integer.parseInt((String) session.getAttribute("uid"));
         }
 
         name = (String) session.getAttribute("name");

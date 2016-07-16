@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+    <link rel="stylesheet" href="lib/MaterialIcon/icon.css">
+    <link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="web.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+<div class="valign-wrapper screen-container">
+    <div class="valign container row">
+        <div class="col m10 l10 offset-m1 offset-l1">
+            <div class="card-panel hoverable ">
+                <ul class="collection with-header" id="leave">
+                    <li class="collection-header"><h4>总览出差</h4></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/Materialize/dist/js/materialize.min.js"></script>
+<script>
+    function view(id) {
+        window.open("detale.html#"+id);
+    }
+
+    $(document).ready(function () {
+        $.getJSON("api/leave/get-all", function (res) {
+            if (res["code"] == 0) {
+                res["data"].forEach(function (l) {
+
+                    var st = "";
+                    switch (l["status"]) {
+                        case -1:
+                            st="被终止";
+                            break;
+                        case 0:
+                            st="异常状态";
+                            break;
+                        case 1:
+                            st="编辑出差申请";
+                            break;
+                        case 2:
+                            st="出差申请部门审核中";
+                            break;
+                        case 3:
+                            st="出差申请成本控制审核之中";
+                            break;
+                        case 5:
+                            st="编辑预借款";
+                            break;
+                        case 6:
+                            st="预借款部门审核中";
+                            break;
+                        case 7:
+                            st="预借款boss审核中";
+                            break;
+                        case 8:
+                            st="预借款等待付款";
+                            break;
+                        case 9:
+                            st="总结填写";
+                            break;
+                        case 10:
+                            st="总结部门评审中";
+                            break;
+                        case 11:
+                            st="报销填写中";
+                            break;
+                        case 12:
+                            st="报销部门审核中";
+                            break;
+                        case 13:
+                            st="报销boss审核中";
+                            break;
+                        case 14:
+                            st="等待报销";
+                            break;
+                        case 15:
+                            st="完成";
+                            break;
+
+                    }
+
+                    $("#leave").append('<li class="collection-item">\
+                            <i class="left">' + l["id"] + '</i>\
+                            <i class="left">' + st + '</i>\
+                            <a onclick="view(' + l["id"] + ')" class="waves-effect waves-light btn">详情</a>\
+                            </li>');
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

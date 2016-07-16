@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+    <link rel="stylesheet" href="lib/MaterialIcon/icon.css">
+    <link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="web.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+
+    <div class=" container row">
+        <div class=" m10 l0 offset-m1 offset-l1">
+            <div class="card-panel hoverable ">
+                <h1>出差信息</h1>
+                编号：<b id="id"></b><br>
+                状态：<b id="status"></b><br>
+                用户号：<b id="uid"></b><br>
+                目的：<b id="leave_aim"></b><br>
+                目的地：<b id="leave_target"></b><br>
+                出发日期：<b id="leave_leave_date"></b><br>
+                返回日期：<b id="leave_back_date"></b><br>
+                类型：<b id="leave_type"></b><br>
+                计划：<b id="leave_plan"></b><br>
+                邀请：<b id="leave_invite"></b><br>
+                回复：<b id="leave_comment"></b><br>
+                预借款：<b id="pre_money"></b><br>
+                预借款回复：<b id="pre_comment"></b><br>
+                真实出发日期：<b id="sum_acc_leave_date"></b><br>
+                真实返回日期：<b id="sum_acc_back_date"></b><br>
+                真实花费：<b id="sum_acc_money"></b><br>
+                总结：<b id="sum_sum"></b><br>
+                总结回复：<b id="sum_comment"></b><br>
+                报销金额：<b id="after_money"></b><br>
+                报销回复：<b id="after_comment"></b><br>
+
+                <h2>图片信息</h2>
+                <p id="inf2"></p>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/Materialize/dist/js/materialize.min.js"></script>
+<script>
+    function getLocalTime(nS) {
+        return new Date(parseInt(nS)).toLocaleString().replace(/:\d{1,2}$/,' ');
+    }
+
+    var id = location.hash.substring(1);
+    $.getJSON("http://localhost:8080/api/leave/get-by-id?id="+id, function (res) {
+        var st = "";
+        switch (res["data"]["status"]) {
+            case -1:
+                st="被终止";
+                break;
+            case 0:
+                st="异常状态";
+                break;
+            case 1:
+                st="编辑出差申请";
+                break;
+            case 2:
+                st="出差申请部门审核中";
+                break;
+            case 3:
+                st="出差申请成本控制审核之中";
+                break;
+            case 5:
+                st="编辑预借款";
+                break;
+            case 6:
+                st="预借款部门审核中";
+                break;
+            case 7:
+                st="预借款boss审核中";
+                break;
+            case 8:
+                st="预借款等待付款";
+                break;
+            case 9:
+                st="总结填写";
+                break;
+            case 10:
+                st="总结部门评审中";
+                break;
+            case 11:
+                st="报销填写中";
+                break;
+            case 12:
+                st="报销部门审核中";
+                break;
+            case 13:
+                st="报销boss审核中";
+                break;
+            case 14:
+                st="等待报销";
+                break;
+            case 15:
+                st="完成";
+                break;
+
+        }
+
+
+        $("#id").html(res["data"]["id"]);
+        $("#status").html(st);
+        $("#uid").html(res["data"]["uid"]);
+        $("#leave_aim").html(res["data"]["leave_aim"]);
+        $("#leave_target").html(res["data"]["leave_target"]);
+        $("#leave_leave_date").html(getLocalTime(res["data"]["leave_leave_date"]));
+        $("#leave_back_date").html(getLocalTime(res["data"]["leave_back_date"]));
+        $("#leave_type").html(res["data"]["leave_type"]);
+        $("#leave_plan").html(res["data"]["leave_plan"]);
+        $("#leave_invite").html(res["data"]["leave_invite"]);
+        $("#leave_comment").html(res["data"]["leave_comment"]);
+        $("#pre_money").html(res["data"]["pre_money"]);
+        $("#pre_comment").html(res["data"]["pre_comment"]);
+        $("#sum_acc_leave_date").html(getLocalTime(res["data"]["sum_acc_leave_date"]));
+        $("#sum_acc_back_date").html(getLocalTime(res["data"]["sum_acc_back_date"]));
+        $("#sum_acc_money").html(res["data"]["sum_acc_money"]);
+        $("#sum_sum").html(res["data"]["sum_sum"]);
+        $("#sum_comment").html(res["data"]["sum_comment"]);
+        $("#after_money").html(res["data"]["after_money"]);
+        $("#after_comment").html(res["data"]["after_comment"]);
+    });
+    $.getJSON("http://localhost:8080/api/upload/list?id="+id, function (res) {
+        if(res["code"]==0){
+            res["invite"].forEach(function (n) {
+                $("#inf2").append('<img src="http://localhost/upload/'+id+'/invite/'+n+'">');
+            });
+            res["bill"].forEach(function (n) {
+                $("#inf2").append('<img src="http://localhost/upload/'+id+'/bill/'+n+'">');
+            })
+        }
+    });
+</script>
+</body>
+</html>

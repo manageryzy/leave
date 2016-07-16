@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+</head>
+<body>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script>
+    $.getJSON("api/user/status", function (res) {
+        switch (res["data"]["role"]){
+            case 0:
+                location.href = "login.html";
+                break;
+            case 1:
+                location.href = "boss.html";
+                break;
+            case 2:
+                location.href = "acc.html";
+                break;
+            case 4:
+                location.href = "cost.html";
+                break;
+            case 8:
+                location.href = "dep.html";
+                break;
+            default:
+                location.href = "user.html";
+
+        }
+    });
+</script>
+</body>
+</html>

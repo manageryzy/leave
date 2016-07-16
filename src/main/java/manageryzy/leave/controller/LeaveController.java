@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import manageryzy.leave.err.ErrNo;
 import manageryzy.leave.model.Leave;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.ibatis.session.SqlSession;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,30 +17,30 @@ import java.util.List;
  * Created by manageryzy on 7/12/2016.
  */
 public class LeaveController extends Controller {
-    protected static int STATUS_STOP = -1;//被终止
-    protected static int STATUS_ERR = 0;//异常状态
-    protected static int STATUS_LEAVE_EDIT = 1;//编辑出差申请
-    protected static int STATUS_LEAVE_DEP = 2;//出差申请部门审核中
-    protected static int STATUS_LEAVE_COST = 3;//出差申请成本控制审核之中
-    protected static int STATUS_PRE_EDIT = 5;//编辑预借款
-    protected static int STATUS_PRE_DEP = 6;//预借款部门审核中
-    protected static int STATUS_PRE_BOSS = 7;//预借款boss审核中
-    protected static int STATUS_PRE_PAY = 8;//预借款等待付款
-    protected static int STATUS_SUM_EDIT = 9;//总结填写
-    protected static int STATUS_SUM_DEP = 10;//总结部门评审中
-    protected static int STATUS_AFTER_EDIT = 11;//报销填写中
-    protected static int STATUS_AFTER_DEP = 12;//报销部门审核中
-    protected static int STATUS_AFTER_BOSS = 13;//报销boss审核中
-    protected static int STATUS_AFTER_PAY = 14;//等待报销
-    protected static int STATUS_FIN = 15;//完成
+    private final static int STATUS_STOP = -1;//被终止
+    private final static int STATUS_ERR = 0;//异常状态
+    private final static int STATUS_LEAVE_EDIT = 1;//编辑出差申请
+    private final static int STATUS_LEAVE_DEP = 2;//出差申请部门审核中
+    private final static int STATUS_LEAVE_COST = 3;//出差申请成本控制审核之中
+    private final static int STATUS_PRE_EDIT = 5;//编辑预借款
+    private final static int STATUS_PRE_DEP = 6;//预借款部门审核中
+    private final static int STATUS_PRE_BOSS = 7;//预借款boss审核中
+    private final static int STATUS_PRE_PAY = 8;//预借款等待付款
+    private final static int STATUS_SUM_EDIT = 9;//总结填写
+    private final static int STATUS_SUM_DEP = 10;//总结部门评审中
+    private final static int STATUS_AFTER_EDIT = 11;//报销填写中
+    private final static int STATUS_AFTER_DEP = 12;//报销部门审核中
+    private final static int STATUS_AFTER_BOSS = 13;//报销boss审核中
+    private final static int STATUS_AFTER_PAY = 14;//等待报销
+    private final static int STATUS_FIN = 15;//完成
     protected int role = Role.ROLE_NONE;//用户角色
     protected int uid = 0;//用户ID
     protected int id = 0;//出差ID
     protected Leave leave = null;
 
 
-    public LeaveController(HttpServletRequest request, HttpSession session, SqlSession sqlSession) {
-        super(request, session, sqlSession);
+    public LeaveController(HttpServletRequest request, HttpSession session, SqlSession sqlSession, ServletFileUpload upload) {
+        super(request, session, sqlSession, upload);
 
         if (session.getAttribute("role") != null) {
             role = (int) session.getAttribute("role");
@@ -118,10 +119,27 @@ public class LeaveController extends Controller {
                 return getLeaveByUser();
             case "/get-by-status":
                 return getLeaveByStatus();
+            case "/get-all":
+                return getAll();
             default:
                 return defaultRoute();
         }
 
+    }
+
+    private JSON getAll() {
+        JSONObject json = new JSONObject();
+
+        if (role != Role.ROLE_BOSS) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        List<Object> list = sqlSession.selectList("manageryzy.leave.model.Leave.selectAll");
+        json.put("code", ErrNo.ERR_NONE);
+        json.put("data", list);
+
+        return json;
     }
 
     /**
@@ -174,7 +192,7 @@ public class LeaveController extends Controller {
         }
 
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
             leave.setLeave_aim(request.getParameter("leave-aim"));
@@ -196,7 +214,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_LEAVE_DEP);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -229,7 +247,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_LEAVE_COST);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -269,7 +287,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_LEAVE_EDIT);
         leave.setLeave_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -309,7 +327,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_STOP);
         leave.setLeave_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -342,7 +360,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_PRE_EDIT);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -382,7 +400,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_LEAVE_EDIT);
         leave.setLeave_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -422,7 +440,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_STOP);
         leave.setLeave_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -463,8 +481,9 @@ public class LeaveController extends Controller {
         }
 
         leave.setPre_money(pre_money);
+        leave.setStatus(STATUS_PRE_DEP);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -501,7 +520,7 @@ public class LeaveController extends Controller {
             leave.setStatus(STATUS_PRE_PAY);
         }
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -542,7 +561,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_PRE_EDIT);
         leave.setPre_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -575,7 +594,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_PRE_PAY);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -615,7 +634,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_STOP);
         leave.setPre_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -648,7 +667,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_SUM_EDIT);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -679,7 +698,7 @@ public class LeaveController extends Controller {
             return json;
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
             leave.setSum_sum(request.getParameter("sum-sum"));
@@ -698,7 +717,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_SUM_DEP);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -731,7 +750,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_AFTER_EDIT);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -771,7 +790,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_SUM_EDIT);
         leave.setSum_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -812,8 +831,9 @@ public class LeaveController extends Controller {
         }
 
         leave.setAfter_money(after_money);
+        leave.setStatus(STATUS_AFTER_DEP);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -850,7 +870,7 @@ public class LeaveController extends Controller {
             leave.setStatus(STATUS_AFTER_PAY);
         }
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -890,7 +910,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_AFTER_EDIT);
         leave.setAfter_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -930,7 +950,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_STOP);
         leave.setAfter_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -963,7 +983,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_AFTER_PAY);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -1003,7 +1023,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_AFTER_EDIT);
         leave.setAfter_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -1043,7 +1063,7 @@ public class LeaveController extends Controller {
         leave.setStatus(STATUS_STOP);
         leave.setAfter_comment(comment);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -1076,7 +1096,7 @@ public class LeaveController extends Controller {
 
         leave.setStatus(STATUS_FIN);
 
-        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) != 0) {
+        if (sqlSession.update("manageryzy.leave.mapper.LeaveMapper.updateLeave", leave) == 0) {
             json.put("code", ErrNo.ERR_DB);
         } else {
             json.put("code", ErrNo.ERR_NONE);
@@ -1136,8 +1156,73 @@ public class LeaveController extends Controller {
      */
     private JSON getLeaveByStatus() {
         JSONObject json = new JSONObject();
-        // NOT use
-        json.put("code", ErrNo.ERR_NONE);
+
+        String s = request.getParameter("status");
+        if (s == null) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        int status = Integer.parseInt(s);
+
+        if (status == 0) {
+            json.put("code", ErrNo.ERR_PARMETER);
+            return json;
+        }
+
+        if(role==Role.ROLE_DEP) {
+            switch (status) {
+                case STATUS_AFTER_DEP:
+                case STATUS_LEAVE_DEP:
+                case STATUS_PRE_DEP:
+                case STATUS_SUM_DEP:
+                    break;
+                default:
+                    json.put("code", ErrNo.ERR_NO_PREVILIGE);
+                    return json;
+            }
+        }
+
+        if(role==Role.ROLE_COST && status!=STATUS_LEAVE_COST) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        if(role==Role.ROLE_ACCOUNTANT){
+            switch (status) {
+                case STATUS_AFTER_PAY:
+                case STATUS_PRE_PAY:
+                    break;
+                default:
+                    json.put("code", ErrNo.ERR_NO_PREVILIGE);
+                    return json;
+            }
+        }
+
+        if(role==Role.ROLE_BOSS){
+            switch (status) {
+                case STATUS_AFTER_BOSS:
+                case STATUS_PRE_BOSS:
+                    break;
+                default:
+                    json.put("code", ErrNo.ERR_NO_PREVILIGE);
+                    return json;
+            }
+        }
+
+        if (role >= Role.ROLE_USER_1) {
+            json.put("code", ErrNo.ERR_NO_PREVILIGE);
+            return json;
+        }
+
+        List<Object> list = sqlSession.selectList("manageryzy.leave.mapper.LeaveMapper.selectByStatus", status);
+        if (list != null) {
+            json.put("code", ErrNo.ERR_NONE);
+            json.put("data", list);
+        }else {
+            json.put("code", ErrNo.ERR_DB);
+        }
+
         return json;
     }
 }

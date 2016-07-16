@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+    <link rel="stylesheet" href="lib/MaterialIcon/icon.css">
+    <link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="web.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+<div class="valign-wrapper screen-container">
+    <div class="valign container row">
+        <div class="col m10 l0 offset-m1 offset-l1">
+            <div class="card-panel hoverable ">
+                <ul class="collection with-header" id="leave">
+                    <li class="collection-header"><h4>待处理出差</h4></li>
+                </ul>
+                <ul class="collection with-header" id="pre">
+                    <li class="collection-header"><h4>待处理预借款</h4></li>
+                </ul>
+                <ul class="collection with-header" id="sum">
+                    <li class="collection-header"><h4>待处理总结</h4></li>
+                </ul>
+                <ul class="collection with-header" id="after">
+                    <li class="collection-header"><h4>待处理报销</h4></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/Materialize/dist/js/materialize.min.js"></script>
+<script>
+    function view(id) {
+        window.open("detale.html#"+id);
+    }
+
+    function leave_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/leave-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function leave_end(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/leave-reject?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function leave_pass(id) {
+        jQuery.getJSON("api/leave/leave-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    function pre_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/pre-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function pre_pass(id) {
+        jQuery.getJSON("api/leave/pre-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    function sum_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/sum-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function sum_pass(id) {
+        jQuery.getJSON("api/leave/sum-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    function after_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/after-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function after_end(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/after-reject?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function after_pass(id) {
+        jQuery.getJSON("api/leave/after-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    $(document).ready(function () {
+        $.getJSON("api/leave/get-by-status?status=2",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#leave").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="leave_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="leave_end('+l["id"]+')" class="waves-effect waves-light btn">终止</a>\
+                            <a onclick="leave_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+
+        $.getJSON("api/leave/get-by-status?status=6",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#pre").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="pre_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="pre_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+
+        $.getJSON("api/leave/get-by-status?status=10",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#sum").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="sum_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="sum_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+
+        $.getJSON("api/leave/get-by-status?status=12",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#after").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="after_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="after_end('+l["id"]+')" class="waves-effect waves-light btn">终止</a>\
+                            <a onclick="after_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

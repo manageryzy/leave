@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>出差系统</title>
+    <link rel="stylesheet" href="lib/MaterialIcon/icon.css">
+    <link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+    <link rel="stylesheet" href="web.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+</head>
+<body>
+<div class="valign-wrapper screen-container">
+    <div class="valign container row">
+        <div class=" m10 l0 offset-m1 offset-l1">
+            <a href="all.html" class="waves-effect waves-light btn">所有出差统计</a>
+            <a onclick="ann" class="waves-effect waves-light btn">发布公告</a>
+            <ul class="collection with-header" id="pre">
+                <li class="collection-header"><h4>待处理借款</h4></li>
+                <!--<li class="collection-item">-->
+                    <!--<i class="left">Alvin</i>-->
+                    <!--<a onclick="view()" class="waves-effect waves-light btn">详情</a>-->
+                    <!--<a onclick="pre_back()" class="waves-effect waves-light btn">打回</a>-->
+                    <!--<a onclick="pre_end()" class="waves-effect waves-light btn">终止</a>-->
+                    <!--<a onclick="pre_pass()" class="waves-effect waves-light btn">通过</a>-->
+                <!--</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+            </ul>
+            <ul class="collection with-header" id="after">
+                <li class="collection-header"><h4>待处理报销</h4></li>
+                <!--<li class="collection-item">-->
+                    <!--<i class="left">Alvin</i>-->
+                    <!--<a onclick="view()" class="waves-effect waves-light btn">详情</a>-->
+                    <!--<a onclick="after_back()" class="waves-effect waves-light btn">打回</a>-->
+                    <!--<a onclick="after_end()" class="waves-effect waves-light btn">终止</a>-->
+                    <!--<a onclick="after_pass()" class="waves-effect waves-light btn">通过</a>-->
+                <!--</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+                <!--<li class="collection-item">Alvin</li>-->
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/Materialize/dist/js/materialize.min.js"></script>
+<script>
+    function ann() {
+        var c = prompt("公告:","没有公告");
+        jQuery.get("api/set-ann/?ann=" + c);
+    }
+    
+    function view(id) {
+        window.open("detale.html#"+id);
+    }
+
+    function pre_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/pre-boss-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+    
+    function pre_end(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/pre-boss-reject?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function pre_pass(id) {
+        jQuery.getJSON("api/leave/pre-boss-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    function after_back(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/after-boss-back?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function after_end(id) {
+        var c = prompt("理由:","不合格");
+        jQuery.getJSON("api/leave/after-boss-reject?id="+id+"&comment="+c,function () {
+            location.reload();
+        });
+    }
+
+    function after_pass(id) {
+        jQuery.getJSON("api/leave/after-boss-pass?id="+id,function () {
+            location.reload();
+        });
+    }
+
+    $(document).ready(function () {
+        $.getJSON("api/leave/get-by-status?status=7",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#pre").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="pre_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="pre_end('+l["id"]+')" class="waves-effect waves-light btn">终止</a>\
+                            <a onclick="pre_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+
+        $.getJSON("api/leave/get-by-status?status=13",function (res) {
+            if(res["code"]==0) {
+                res["data"].forEach(function (l) {
+                    $("#after").append('<li class="collection-item">\
+                            <i class="left">'+l["id"]+'</i>\
+                            <a onclick="view('+l["id"]+')" class="waves-effect waves-light btn">详情</a>\
+                            <a onclick="after_back('+l["id"]+')" class="waves-effect waves-light btn">打回</a>\
+                            <a onclick="after_end('+l["id"]+')" class="waves-effect waves-light btn">终止</a>\
+                            <a onclick="after_pass('+l["id"]+')" class="waves-effect waves-light btn">通过</a>\
+                            </li>');
+                });
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

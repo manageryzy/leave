@@ -1,10 +1,12 @@
 package manageryzy.leave.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * role class
- * Created by manag on 7/12/2016.
+ * Created by manageryzy on 7/12/2016.
  */
 public class Role {
     public final static int ROLE_NONE = 0;
@@ -15,7 +17,7 @@ public class Role {
     public final static int ROLE_USER_1 = 16;//员工类型1
     public final static int ROLE_USER_2 = 32;//员工类型2
     private static Role role = null;
-    private ArrayList<Cost> costList = null;
+    private Map<Integer,Cost> costList = null;
 
     public static Role getRole() {
         if (role == null) {
@@ -25,15 +27,15 @@ public class Role {
         return role;
     }
 
-    public void Role() {
-        costList = new ArrayList<>();
-        costList.add(ROLE_NONE, new Cost(0, 0));
-        costList.add(ROLE_BOSS, new Cost(0, 0));
-        costList.add(ROLE_ACCOUNTANT, new Cost(0, 0));
-        costList.add(ROLE_COST, new Cost(0, 0));
-        costList.add(ROLE_DEP, new Cost(0, 0));
-        costList.add(ROLE_USER_1, new Cost(5000, 5000));
-        costList.add(ROLE_USER_2, new Cost(6000, 8000));
+    public Role() {
+        costList = new HashMap<>();
+        costList.put(ROLE_NONE, new Cost(0, 0));
+        costList.put(ROLE_BOSS, new Cost(0, 0));
+        costList.put(ROLE_ACCOUNTANT, new Cost(0, 0));
+        costList.put(ROLE_COST, new Cost(0, 0));
+        costList.put(ROLE_DEP, new Cost(0, 0));
+        costList.put(ROLE_USER_1, new Cost(5000, 5000));
+        costList.put(ROLE_USER_2, new Cost(6000, 8000));
     }
 
     public Cost getCost(int role) {
